@@ -55,3 +55,10 @@
 .btn-primary:hover {
   background: var(--primary-dark);
 }
+
+.navbar-user {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 0 8px;
+}
