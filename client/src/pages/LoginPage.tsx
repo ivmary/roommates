@@ -32,7 +32,7 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card">
         <h1>Welcome back</h1>
-        <p className="subtitle">Log in to your PartDorms account</p>
+        <p className="subtitle">Log in to your RoomMates account</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && <div className="auth-error">{error}</div>}
@@ -65,10 +65,26 @@ export default function LoginPage() {
             {loading ? "Logging in…" : "Log in"}
           </button>
 
-          <GoogleLogin
-            onSuccess={(response) => googleLogin(response.credential!)}
-            onError={() => console.log("Login Failed")}
-          />
+          <div className="auth-divider">
+            <span>or</span>
+          </div>
+
+          <div className="auth-google">
+            <GoogleLogin
+              onSuccess={async (response) => {
+                try {
+                  await googleLogin(response.credential!);
+                  navigate("/");
+                } catch (err: unknown) {
+                  setError(
+                    err instanceof Error ? err.message : "Google login failed",
+                  );
+                }
+              }}
+              onError={() => setError("Google login failed")}
+              width="340"
+            />
+          </div>
         </form>
 
         <p className="auth-footer">
