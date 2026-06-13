@@ -1,26 +1,28 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import './Auth.css';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import "./Auth.css";
+
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -60,8 +62,13 @@ export default function LoginPage() {
           </div>
 
           <button className="auth-submit" type="submit" disabled={loading}>
-            {loading ? 'Logging in…' : 'Log in'}
+            {loading ? "Logging in…" : "Log in"}
           </button>
+
+          <GoogleLogin
+            onSuccess={(response) => googleLogin(response.credential!)}
+            onError={() => console.log("Login Failed")}
+          />
         </form>
 
         <p className="auth-footer">
