@@ -1,27 +1,28 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import './Auth.css';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import "./Auth.css";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
       await register(name, email, password);
-      navigate('/');
+      navigate("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -31,11 +32,33 @@ export default function RegisterPage() {
     <div className="auth-page">
       <div className="auth-card">
         <h1>Create account</h1>
-        <p className="subtitle">Join PartDorms and find your perfect roommate</p>
+        <p className="subtitle">
+          Join RoomMates and find your perfect roommate
+        </p>
+
+        {error && <div className="auth-error">{error}</div>}
+
+        <div className="auth-google">
+          <GoogleLogin
+            onSuccess={async (response) => {
+              try {
+                await googleLogin(response.credential!);
+                navigate("/");
+              } catch (err: unknown) {
+                setError(
+                  err instanceof Error ? err.message : "Google login failed",
+                );
+              }
+            }}
+            onError={() => setError("Google login failed")}
+            width="340"
+          />
+        </div>
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          {error && <div className="auth-error">{error}</div>}
-
           <div className="field">
             <label htmlFor="name">Full name</label>
             <input
@@ -74,7 +97,7 @@ export default function RegisterPage() {
           </div>
 
           <button className="auth-submit" type="submit" disabled={loading}>
-            {loading ? 'Creating account…' : 'Sign up'}
+            {loading ? "Creating account…" : "Sign up"}
           </button>
         </form>
 

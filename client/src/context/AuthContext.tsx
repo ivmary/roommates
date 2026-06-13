@@ -1,9 +1,16 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 
 interface User {
   id: string;
   name: string;
   email: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
@@ -12,6 +19,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  googleLogin: (credential: string) => Promise<void>; // add this
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -21,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('auth');
+    const stored = localStorage.getItem("auth");
     if (stored) {
       const { user, token } = JSON.parse(stored);
       setUser(user);
@@ -32,13 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const persist = (user: User, token: string) => {
     setUser(user);
     setToken(token);
-    localStorage.setItem('auth', JSON.stringify({ user, token }));
+    localStorage.setItem("auth", JSON.stringify({ user, token }));
   };
 
   const login = async (email: string, password: string) => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
@@ -47,11 +55,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/register`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      },
+    );
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
     persist(data.user, data.token);
@@ -60,11 +71,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('auth');
+    localStorage.removeItem("auth");
+  };
+
+  const googleLogin = async (credential: string) => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    persist(data.user, data.token);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, login, register, logout, googleLogin }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -72,6 +96,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 }
