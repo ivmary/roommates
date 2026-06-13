@@ -23,7 +23,7 @@ const register = async (req, res) => {
 
   res.status(201).json({
     token: signToken(user._id),
-    user: { id: user._id, name: user.name, email: user.email },
+    user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar },
   });
 };
 
@@ -43,7 +43,7 @@ const login = async (req, res) => {
 
   res.json({
     token: signToken(user._id),
-    user: { id: user._id, name: user.name, email: user.email },
+    user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar },
   });
 };
 
@@ -73,7 +73,7 @@ const googleAuth = async (req, res) => {
 
   res.json({
     token: signToken(user._id),
-    user: { id: user._id, name: user.name, email: user.email },
+    user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar },
   });
 };
 

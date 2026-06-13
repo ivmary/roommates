@@ -14,7 +14,13 @@ export default function Navbar() {
         <div className="navbar-actions">
           {user ? (
             <>
-              <span className="navbar-user">Hi, {user.name.split(" ")[0]}</span>
+              <div className="navbar-avatar">
+                {user.avatar
+                  ? <img src={user.avatar} alt={user.name} referrerPolicy="no-referrer" />
+                  : <span>{user.name.charAt(0).toUpperCase()}</span>
+                }
+              </div>
+              <span className="navbar-user">{user.name.split(" ")[0]}</span>
               <button className="btn btn-ghost" onClick={logout}>
                 Log out
               </button>
