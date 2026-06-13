@@ -1,6 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -44,4 +47,34 @@ const login = async (req, res) => {
   });
 };
 
-module.exports = { register, login };
+const googleAuth = async (req, res) => {
+  const { credential } = req.body;
+  if (!credential)
+    return res.status(400).json({ message: 'Missing credential' });
+
+  const ticket = await googleClient.verifyIdToken({
+    idToken: credential,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const { sub, email, name, picture } = ticket.getPayload();
+
+  let user = await User.findOne({ googleId: sub });
+  if (!user) user = await User.findOne({ email });
+
+  if (user) {
+    if (!user.googleId) {
+      user.googleId = sub;
+      user.avatar = user.avatar || picture;
+      await user.save();
+    }
+  } else {
+    user = await User.create({ name, email, googleId: sub, avatar: picture });
+  }
+
+  res.json({
+    token: signToken(user._id),
+    user: { id: user._id, name: user.name, email: user.email },
+  });
+};
+
+module.exports = { register, login, googleAuth };
