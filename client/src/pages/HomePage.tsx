@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './HomePage.css';
 
 const features = [
@@ -19,6 +21,7 @@ const features = [
 ];
 
 export default function HomePage() {
+  const { user } = useAuth();
   return (
     <main>
       <section className="hero">
@@ -52,7 +55,11 @@ export default function HomePage() {
       <section className="cta-section">
         <h2>Ready to find your next roommate?</h2>
         <p>Join hundreds of people who found their perfect match.</p>
-        <a href="/register" className="btn-cta">Get Started — It's Free</a>
+        {user ? (
+          <Link to="/search" className="btn-cta">Browse Rooms</Link>
+        ) : (
+          <Link to="/register" className="btn-cta">Get Started — It's Free</Link>
+        )}
       </section>
     </main>
   );
