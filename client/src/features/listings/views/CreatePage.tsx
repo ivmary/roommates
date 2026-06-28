@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import "./CreatePage.css";
+import { useAuth } from "../../../shared/store/AuthContext";
+import "./styles/CreatePage.css";
 
 export default function CreatePage() {
   const navigate = useNavigate();

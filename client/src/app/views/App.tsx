@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import Navbar from "./components/Navbar";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import SearchPage from "./pages/SearchPage";
-import CreatePage from "./pages/CreatePage";
+import { AuthProvider } from "../../shared/store/AuthContext";
+import Navbar from "../../shared/components/Navbar";
+import HomePage from "../../features/home/views/HomePage";
+import LoginPage from "../../features/auth/views/LoginPage";
+import RegisterPage from "../../features/auth/views/RegisterPage";
+import SearchPage from "../../features/listings/views/SearchPage";
+import CreatePage from "../../features/listings/views/CreatePage";
 
 import { GoogleOAuthProvider } from "@react-oauth/google";
 

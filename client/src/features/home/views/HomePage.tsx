@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import './HomePage.css';
+import { useAuth } from '../../../shared/store/AuthContext';
+import './styles/HomePage.css';
 
 const features = [
   {

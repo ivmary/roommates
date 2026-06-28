@@ -1,4 +1,4 @@
-import './SearchPage.css';
+import './styles/SearchPage.css';
 
 const LISTINGS = [
   {
