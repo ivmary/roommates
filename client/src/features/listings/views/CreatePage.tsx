@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../shared/store/AuthContext";
+import { useIsraeliCities } from "../../../hooks/useIsraeliCities";
 import "./styles/CreatePage.css";
 
 export default function CreatePage() {
   const navigate = useNavigate();
   const { user, token } = useAuth();
+  const { cities, loading: citiesLoading } = useIsraeliCities();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +37,7 @@ export default function CreatePage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/apartments`, {
+      const res = await fetch(`/api/apartments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,20 +101,18 @@ export default function CreatePage() {
             <div className="field-row">
               <div className="field">
                 <label htmlFor="city">City</label>
-                <select
+                <input
                   id="city"
+                  type="text"
+                  list="cities-list"
+                  placeholder={citiesLoading ? 'Loading cities…' : 'Type a city…'}
+                  disabled={citiesLoading}
                   value={form.city}
                   onChange={(e) => set("city", e.target.value)}
-                >
-                  <option value="">Select city…</option>
-                  <option>Tel Aviv</option>
-                  <option>Jerusalem</option>
-                  <option>Haifa</option>
-                  <option>Be'er Sheva</option>
-                  <option>Ramat Gan</option>
-                  <option>Petah Tikva</option>
-                  <option>Rishon LeZion</option>
-                </select>
+                />
+                <datalist id="cities-list">
+                  {cities.map((city) => <option key={city} value={city} />)}
+                </datalist>
               </div>
 
               <div className="field">

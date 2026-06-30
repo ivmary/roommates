@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useIsraeliCities } from '../../../hooks/useIsraeliCities';
 import './styles/SearchPage.css';
 
 interface Listing {
@@ -41,7 +42,10 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { cities, loading: citiesLoading } = useIsraeliCities();
   const [query, setQuery] = useState('');
+  const [city, setCity] = useState('');
+  const [cityInput, setCityInput] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [rooms, setRooms] = useState('');
@@ -49,7 +53,7 @@ export default function SearchPage() {
   const [sort, setSort] = useState('newest');
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/apartments`)
+    fetch(`/api/apartments`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load listings');
         return r.json();
@@ -62,7 +66,8 @@ export default function SearchPage() {
   const listings = allListings
     .filter((l) => {
       const q = query.toLowerCase();
-      if (q && !l.city.toLowerCase().includes(q) && !l.neighborhood?.toLowerCase().includes(q) && !l.title.toLowerCase().includes(q)) return false;
+      if (q && !l.neighborhood?.toLowerCase().includes(q) && !l.title.toLowerCase().includes(q)) return false;
+      if (city && l.city !== city && !l.city.toLowerCase().includes(city.toLowerCase())) return false;
       if (minPrice && l.price < Number(minPrice)) return false;
       if (maxPrice && l.price > Number(maxPrice)) return false;
       if (rooms && l.rooms !== rooms) return false;
@@ -80,11 +85,29 @@ export default function SearchPage() {
       {/* Filters */}
       <div className="search-bar">
         <div className="search-bar-inner">
-          <div className="search-field search-field--wide">
-            <label>City or neighborhood</label>
+          <div className="search-field">
+            <label>City</label>
             <input
               type="text"
-              placeholder="e.g. Tel Aviv, Florentin…"
+              list="cities-list"
+              placeholder={citiesLoading ? 'Loading…' : 'Any city'}
+              disabled={citiesLoading}
+              value={cityInput}
+              onChange={(e) => {
+                setCityInput(e.target.value);
+                setCity(e.target.value);
+              }}
+            />
+            <datalist id="cities-list">
+              {cities.map((c) => <option key={c} value={c} />)}
+            </datalist>
+          </div>
+
+          <div className="search-field search-field--wide">
+            <label>Neighborhood or keyword</label>
+            <input
+              type="text"
+              placeholder="e.g. Florentin, quiet room…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />

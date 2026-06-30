@@ -12,6 +12,7 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/apartments', require('./routes/apartments'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/cities', require('./routes/cities'));
 
 mongoose
   .connect(process.env.MONGO_URI)

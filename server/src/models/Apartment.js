@@ -5,7 +5,7 @@ const apartmentSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     city: { type: String, required: true, trim: true },
-    neighborhood: { type: String, trim: true },
+    street: { type: String, trim: true },
     price: { type: Number, required: true },
     rooms: { type: String },
     available: { type: String },
