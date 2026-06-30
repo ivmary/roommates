@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+    const res = await fetch(`/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (name: string, email: string, password: string) => {
     const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/auth/register`,
+      `/api/auth/register`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const googleLogin = async (credential: string) => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
+    const res = await fetch(`/api/auth/google`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ credential }),

@@ -37,7 +37,7 @@ export default function CreatePage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/apartments`, {
+      const res = await fetch(`/api/apartments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

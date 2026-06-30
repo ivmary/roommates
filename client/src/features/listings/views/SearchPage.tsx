@@ -53,7 +53,7 @@ export default function SearchPage() {
   const [sort, setSort] = useState('newest');
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/apartments`)
+    fetch(`/api/apartments`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load listings');
         return r.json();
