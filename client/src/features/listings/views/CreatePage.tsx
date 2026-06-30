@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../shared/store/AuthContext";
 import { useIsraeliCities } from "../../../hooks/useIsraeliCities";
+import { useStreets } from "../../../hooks/useStreets";
 import "./styles/CreatePage.css";
 
 export default function CreatePage() {
   const navigate = useNavigate();
   const { user, token } = useAuth();
-  const { cities, loading: citiesLoading } = useIsraeliCities();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +15,7 @@ export default function CreatePage() {
     title: "",
     description: "",
     city: "",
-    neighborhood: "",
+    street: "",
     price: "",
     rooms: "",
     available: "",
@@ -25,6 +25,11 @@ export default function CreatePage() {
     students: false,
     furnished: false,
   });
+
+  const { cities, loading: citiesLoading } = useIsraeliCities();
+  const { streets, loading: streetsLoading } = useStreets(
+    cities.includes(form.city) ? form.city : ""
+  );
 
   const set = (field: string, value: string | boolean) =>
     setForm((f) => ({ ...f, [field]: value }));
@@ -116,14 +121,25 @@ export default function CreatePage() {
               </div>
 
               <div className="field">
-                <label htmlFor="neighborhood">Neighborhood</label>
+                <label htmlFor="street">Street</label>
                 <input
-                  id="neighborhood"
+                  id="street"
                   type="text"
-                  placeholder="e.g. Florentin"
-                  value={form.neighborhood}
-                  onChange={(e) => set("neighborhood", e.target.value)}
+                  list="streets-list"
+                  placeholder={
+                    !form.city || !cities.includes(form.city)
+                      ? 'Select a city first'
+                      : streetsLoading
+                      ? 'Loading streets…'
+                      : 'Type a street…'
+                  }
+                  disabled={!form.city || !cities.includes(form.city) || streetsLoading}
+                  value={form.street}
+                  onChange={(e) => set("street", e.target.value)}
                 />
+                <datalist id="streets-list">
+                  {streets.map((s) => <option key={s} value={s} />)}
+                </datalist>
               </div>
             </div>
           </div>
