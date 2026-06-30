@@ -1,97 +1,23 @@
+import { useState, useEffect } from 'react';
 import './styles/SearchPage.css';
 
-const LISTINGS = [
-  {
-    id: 1,
-    title: 'Sunny room in shared flat',
-    price: 2200,
-    city: 'Tel Aviv',
-    neighborhood: 'Florentin',
-    rooms: 3,
-    available: 1,
-    gender: 'Mixed',
-    pets: true,
-    smoking: false,
-    desc: 'Bright room in a well-maintained apartment, 5 min walk from Carmelit market. Furnished, high-speed Wi-Fi.',
-    posted: '2 days ago',
-    badge: 'New',
-  },
-  {
-    id: 2,
-    title: 'Large room near university',
-    price: 1800,
-    city: 'Haifa',
-    neighborhood: 'Neve Shaanan',
-    rooms: 4,
-    available: 2,
-    gender: 'Female only',
-    pets: false,
-    smoking: false,
-    desc: 'Two rooms available in a quiet 4-bedroom apartment. Close to Technion and public transport.',
-    posted: '5 days ago',
-    badge: null,
-  },
-  {
-    id: 3,
-    title: 'Modern flat, sea view',
-    price: 3100,
-    city: 'Tel Aviv',
-    neighborhood: 'Old North',
-    rooms: 2,
-    available: 1,
-    gender: 'Mixed',
-    pets: true,
-    smoking: false,
-    desc: 'Stylish apartment with a rooftop terrace and sea views. Looking for one quiet roommate.',
-    posted: '1 week ago',
-    badge: null,
-  },
-  {
-    id: 4,
-    title: 'Cozy studio share',
-    price: 1600,
-    city: 'Jerusalem',
-    neighborhood: 'Katamon',
-    rooms: 2,
-    available: 1,
-    gender: 'Male only',
-    pets: false,
-    smoking: false,
-    desc: 'Peaceful apartment in a central Jerusalem neighborhood. Strong student community in the building.',
-    posted: '3 days ago',
-    badge: 'Popular',
-  },
-  {
-    id: 5,
-    title: 'Penthouse room with terrace',
-    price: 3800,
-    city: 'Tel Aviv',
-    neighborhood: 'Neve Tzedek',
-    rooms: 3,
-    available: 1,
-    gender: 'Mixed',
-    pets: true,
-    smoking: true,
-    desc: 'Top-floor apartment with a private terrace. Recently renovated kitchen and bathroom.',
-    posted: '1 day ago',
-    badge: 'New',
-  },
-  {
-    id: 6,
-    title: 'Budget-friendly shared house',
-    price: 1400,
-    city: 'Be\'er Sheva',
-    neighborhood: 'Dalet',
-    rooms: 5,
-    available: 3,
-    gender: 'Mixed',
-    pets: false,
-    smoking: false,
-    desc: 'Large house near Ben-Gurion University. Ideal for students looking to save on rent.',
-    posted: '2 weeks ago',
-    badge: null,
-  },
-];
+interface Listing {
+  _id: string;
+  title: string;
+  description: string;
+  city: string;
+  neighborhood: string;
+  price: number;
+  rooms: string;
+  available: string;
+  gender: string;
+  pets: boolean;
+  smoking: boolean;
+  students: boolean;
+  furnished: boolean;
+  owner: { name: string; avatar?: string };
+  createdAt: string;
+}
 
 const ICONS: Record<string, string> = {
   'Tel Aviv': '🏙️',
@@ -100,7 +26,55 @@ const ICONS: Record<string, string> = {
   "Be'er Sheva": '🌵',
 };
 
+function timeAgo(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diff / 86_400_000);
+  if (days === 0) return 'Today';
+  if (days === 1) return '1 day ago';
+  if (days < 7) return `${days} days ago`;
+  const weeks = Math.floor(days / 7);
+  return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+}
+
 export default function SearchPage() {
+  const [allListings, setAllListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [query, setQuery] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [rooms, setRooms] = useState('');
+  const [gender, setGender] = useState('');
+  const [sort, setSort] = useState('newest');
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/apartments`)
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to load listings');
+        return r.json();
+      })
+      .then(setAllListings)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const listings = allListings
+    .filter((l) => {
+      const q = query.toLowerCase();
+      if (q && !l.city.toLowerCase().includes(q) && !l.neighborhood?.toLowerCase().includes(q) && !l.title.toLowerCase().includes(q)) return false;
+      if (minPrice && l.price < Number(minPrice)) return false;
+      if (maxPrice && l.price > Number(maxPrice)) return false;
+      if (rooms && l.rooms !== rooms) return false;
+      if (gender && l.gender !== gender) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sort === 'price-asc') return a.price - b.price;
+      if (sort === 'price-desc') return b.price - a.price;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
   return (
     <div className="search-page">
       {/* Filters */}
@@ -108,33 +82,51 @@ export default function SearchPage() {
         <div className="search-bar-inner">
           <div className="search-field search-field--wide">
             <label>City or neighborhood</label>
-            <input type="text" placeholder="e.g. Tel Aviv, Florentin…" />
+            <input
+              type="text"
+              placeholder="e.g. Tel Aviv, Florentin…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
           </div>
 
           <div className="search-field">
             <label>Min price (₪)</label>
-            <input type="number" placeholder="1 000" min={0} />
+            <input
+              type="number"
+              placeholder="1 000"
+              min={0}
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+            />
           </div>
 
           <div className="search-field">
             <label>Max price (₪)</label>
-            <input type="number" placeholder="5 000" min={0} />
+            <input
+              type="number"
+              placeholder="5 000"
+              min={0}
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+            />
           </div>
 
           <div className="search-field">
             <label>Rooms</label>
-            <select>
+            <select value={rooms} onChange={(e) => setRooms(e.target.value)}>
               <option value="">Any</option>
               <option>2</option>
               <option>3</option>
               <option>4</option>
-              <option>5+</option>
+              <option>5</option>
+              <option>6+</option>
             </select>
           </div>
 
           <div className="search-field">
             <label>Gender</label>
-            <select>
+            <select value={gender} onChange={(e) => setGender(e.target.value)}>
               <option value="">Any</option>
               <option>Mixed</option>
               <option>Female only</option>
@@ -142,60 +134,80 @@ export default function SearchPage() {
             </select>
           </div>
 
-          <button className="search-btn">Search</button>
+          <button className="search-btn" onClick={() => {}}>Search</button>
         </div>
       </div>
 
       {/* Results header */}
       <div className="results-header">
         <p className="results-count">
-          Showing <strong>{LISTINGS.length} listings</strong> across Israel
+          {loading
+            ? 'Loading…'
+            : error
+            ? ''
+            : <>Showing <strong>{listings.length} listing{listings.length !== 1 ? 's' : ''}</strong> across Israel</>}
         </p>
-        <select className="sort-select">
-          <option>Sort: Newest first</option>
-          <option>Price: Low to high</option>
-          <option>Price: High to low</option>
+        <select
+          className="sort-select"
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+        >
+          <option value="newest">Sort: Newest first</option>
+          <option value="price-asc">Price: Low to high</option>
+          <option value="price-desc">Price: High to low</option>
         </select>
       </div>
 
+      {/* States */}
+      {error && <p className="search-error">{error}</p>}
+
+      {!loading && !error && listings.length === 0 && (
+        <p className="search-empty">No listings match your search.</p>
+      )}
+
       {/* Cards */}
       <div className="results-grid">
-        {LISTINGS.map((l) => (
-          <div className="listing-card" key={l.id}>
-            <div className="listing-img">
-              <span>{ICONS[l.city] ?? '🏠'}</span>
-              {l.badge && <span className="listing-badge">{l.badge}</span>}
-            </div>
-
-            <div className="listing-body">
-              <div className="listing-price">
-                ₪{l.price.toLocaleString()}
-                <span> / month</span>
+        {listings.map((l) => {
+          const isNew = Date.now() - new Date(l.createdAt).getTime() < 3 * 86_400_000;
+          return (
+            <div className="listing-card" key={l._id}>
+              <div className="listing-img">
+                <span>{ICONS[l.city] ?? '🏠'}</span>
+                {isNew && <span className="listing-badge">New</span>}
               </div>
 
-              <div className="listing-location">
-                📍 {l.neighborhood}, {l.city}
+              <div className="listing-body">
+                <div className="listing-price">
+                  ₪{l.price.toLocaleString()}
+                  <span> / month</span>
+                </div>
+
+                <div className="listing-location">
+                  📍 {l.neighborhood ? `${l.neighborhood}, ` : ''}{l.city}
+                </div>
+
+                <div className="listing-title">{l.title}</div>
+
+                {l.description && <p className="listing-desc">{l.description}</p>}
+
+                <div className="listing-tags">
+                  {l.rooms && <span className="tag">{l.rooms} rooms</span>}
+                  {l.available && <span className="tag">{l.available} available</span>}
+                  {l.gender && <span className="tag">{l.gender}</span>}
+                  {l.pets && <span className="tag">Pets OK</span>}
+                  {l.smoking && <span className="tag">Smoking OK</span>}
+                  {l.students && <span className="tag">Students welcome</span>}
+                  {l.furnished && <span className="tag">Furnished</span>}
+                </div>
               </div>
 
-              <div className="listing-title">{l.title}</div>
-
-              <p className="listing-desc">{l.desc}</p>
-
-              <div className="listing-tags">
-                <span className="tag">{l.rooms} rooms</span>
-                <span className="tag">{l.available} available</span>
-                <span className="tag">{l.gender}</span>
-                {l.pets && <span className="tag">Pets OK</span>}
-                {l.smoking && <span className="tag">Smoking OK</span>}
+              <div className="listing-footer">
+                <span className="listing-posted">{timeAgo(l.createdAt)}</span>
+                <button className="btn-view">View listing</button>
               </div>
             </div>
-
-            <div className="listing-footer">
-              <span className="listing-posted">{l.posted}</span>
-              <button className="btn-view">View listing</button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
