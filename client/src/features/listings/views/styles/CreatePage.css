@@ -216,3 +216,9 @@
   flex-wrap: wrap;
   justify-content: center;
 }
+
+.create-error {
+  color: var(--error, #d93025);
+  font-size: 14px;
+  margin: 0;
+}

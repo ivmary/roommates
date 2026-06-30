@@ -5,7 +5,9 @@ import "./styles/CreatePage.css";
 
 export default function CreatePage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -24,6 +26,32 @@ export default function CreatePage() {
 
   const set = (field: string, value: string | boolean) =>
     setForm((f) => ({ ...f, [field]: value }));
+
+  const handleSubmit = async () => {
+    if (!form.title || !form.city || !form.price) {
+      setError("Title, city and price are required.");
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/apartments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...form, price: Number(form.price) }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      navigate("/search");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="create-page">
@@ -210,16 +238,23 @@ export default function CreatePage() {
           </div>
 
           {/* Actions */}
+          {error && <p className="create-error">{error}</p>}
           <div className="create-actions">
             <button
               className="btn-cancel"
               type="button"
               onClick={() => navigate(-1)}
+              disabled={loading}
             >
               Cancel
             </button>
-            <button className="btn-submit" type="button">
-              Post listing
+            <button
+              className="btn-submit"
+              type="button"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? "Posting…" : "Post listing"}
             </button>
           </div>
         </div>
