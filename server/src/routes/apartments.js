@@ -1,13 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { createApartment, getApartments } = require('../controllers/apartmentController');
+const { protect } = require('../middleware/auth');
 
-// GET /api/apartments
-router.get('/', (req, res) => res.json({ message: 'list apartments' }));
-
-// POST /api/apartments
-router.post('/', (req, res) => res.json({ message: 'create apartment' }));
-
-// DELETE /api/apartments/:id
-router.delete('/:id', (req, res) => res.json({ message: 'close listing' }));
+router.get('/', getApartments);
+router.post('/', protect, createApartment);
+router.delete('/:id', protect, (req, res) => res.json({ message: 'close listing' }));
 
 module.exports = router;

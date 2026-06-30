@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import "./Auth.css";
+import { useAuth } from "../../../shared/store/AuthContext";
+import "./styles/Auth.css";
+
 import { GoogleLogin } from "@react-oauth/google";
 
-export default function RegisterPage() {
-  const { register, googleLogin } = useAuth();
+export default function LoginPage() {
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,7 +19,7 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      await register(name, email, password);
+      await login(email, password);
       navigate("/");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -31,45 +31,11 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>Create account</h1>
-        <p className="subtitle">
-          Join RoomMates and find your perfect roommate
-        </p>
-
-        {error && <div className="auth-error">{error}</div>}
-
-        <div className="auth-google">
-          <GoogleLogin
-            onSuccess={async (response) => {
-              try {
-                await googleLogin(response.credential!);
-                navigate("/");
-              } catch (err: unknown) {
-                setError(
-                  err instanceof Error ? err.message : "Google login failed",
-                );
-              }
-            }}
-            onError={() => setError("Google login failed")}
-            width="340"
-          />
-        </div>
-        <div className="auth-divider">
-          <span>or</span>
-        </div>
+        <h1>Welcome back</h1>
+        <p className="subtitle">Log in to your RoomMates account</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="name">Full name</label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Mary Cohen"
-              required
-            />
-          </div>
+          {error && <div className="auth-error">{error}</div>}
 
           <div className="field">
             <label htmlFor="email">Email</label>
@@ -90,19 +56,39 @@ export default function RegisterPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 6 characters"
-              minLength={6}
+              placeholder="••••••••"
               required
             />
           </div>
 
           <button className="auth-submit" type="submit" disabled={loading}>
-            {loading ? "Creating account…" : "Sign up"}
+            {loading ? "Logging in…" : "Log in"}
           </button>
+
+          <div className="auth-divider">
+            <span>or</span>
+          </div>
+
+          <div className="auth-google">
+            <GoogleLogin
+              onSuccess={async (response) => {
+                try {
+                  await googleLogin(response.credential!);
+                  navigate("/");
+                } catch (err: unknown) {
+                  setError(
+                    err instanceof Error ? err.message : "Google login failed",
+                  );
+                }
+              }}
+              onError={() => setError("Google login failed")}
+              width="340"
+            />
+          </div>
         </form>
 
         <p className="auth-footer">
-          Already have an account? <Link to="/login">Log in</Link>
+          Don't have an account? <Link to="/register">Sign up</Link>
         </p>
       </div>
     </div>

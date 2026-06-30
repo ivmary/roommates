@@ -250,3 +250,15 @@
 .btn-view:hover {
   background: #c7d2fe;
 }
+
+.search-error,
+.search-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 48px 24px;
+  font-size: 15px;
+}
+
+.search-error {
+  color: var(--error, #d93025);
+}

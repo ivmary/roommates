@@ -5,3 +5,8 @@ dist
 *.log
 
 docs/*
+
+*claude*
+*CLAUDE*
+
+.vscode
