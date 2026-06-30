@@ -13,7 +13,6 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/apartments', require('./routes/apartments'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/cities', require('./routes/cities'));
-app.use('/api/streets', require('./routes/streets'));
 
 mongoose
   .connect(process.env.MONGO_URI)

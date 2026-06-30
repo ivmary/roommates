@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useIsraeliCities } from '../../../hooks/useIsraeliCities';
-import { useStreets } from '../../../hooks/useStreets';
 import './styles/SearchPage.css';
 
 interface Listing {
@@ -8,7 +7,7 @@ interface Listing {
   title: string;
   description: string;
   city: string;
-  street: string;
+  neighborhood: string;
   price: number;
   rooms: string;
   available: string;
@@ -44,12 +43,9 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
 
   const { cities, loading: citiesLoading } = useIsraeliCities();
-  const [cityInput, setCityInput] = useState('');
+  const [query, setQuery] = useState('');
   const [city, setCity] = useState('');
-  const { streets, loading: streetsLoading } = useStreets(
-    cities.includes(cityInput) ? cityInput : ''
-  );
-  const [street, setStreet] = useState('');
+  const [cityInput, setCityInput] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [rooms, setRooms] = useState('');
@@ -69,8 +65,9 @@ export default function SearchPage() {
 
   const listings = allListings
     .filter((l) => {
-      if (city && !l.city.toLowerCase().includes(city.toLowerCase())) return false;
-      if (street && !l.street?.toLowerCase().includes(street.toLowerCase())) return false;
+      const q = query.toLowerCase();
+      if (q && !l.neighborhood?.toLowerCase().includes(q) && !l.title.toLowerCase().includes(q)) return false;
+      if (city && l.city !== city && !l.city.toLowerCase().includes(city.toLowerCase())) return false;
       if (minPrice && l.price < Number(minPrice)) return false;
       if (maxPrice && l.price > Number(maxPrice)) return false;
       if (rooms && l.rooms !== rooms) return false;
@@ -97,10 +94,8 @@ export default function SearchPage() {
               disabled={citiesLoading}
               value={cityInput}
               onChange={(e) => {
-                const val = e.target.value;
-                setCityInput(val);
-                setCity(val);
-                if (!val) setStreet('');
+                setCityInput(e.target.value);
+                setCity(e.target.value);
               }}
             />
             <datalist id="cities-list">
@@ -108,25 +103,14 @@ export default function SearchPage() {
             </datalist>
           </div>
 
-          <div className="search-field">
-            <label>Street</label>
+          <div className="search-field search-field--wide">
+            <label>Neighborhood or keyword</label>
             <input
               type="text"
-              list="streets-list"
-              placeholder={
-                !cities.includes(cityInput)
-                  ? 'Select a city first'
-                  : streetsLoading
-                  ? 'Loading streets…'
-                  : 'Any street'
-              }
-              disabled={!cities.includes(cityInput) || streetsLoading}
-              value={street}
-              onChange={(e) => setStreet(e.target.value)}
+              placeholder="e.g. Florentin, quiet room…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
-            <datalist id="streets-list">
-              {streets.map((s) => <option key={s} value={s} />)}
-            </datalist>
           </div>
 
           <div className="search-field">
@@ -222,7 +206,7 @@ export default function SearchPage() {
                 </div>
 
                 <div className="listing-location">
-                  📍 {l.street ? `${l.street}, ` : ''}{l.city}
+                  📍 {l.neighborhood ? `${l.neighborhood}, ` : ''}{l.city}
                 </div>
 
                 <div className="listing-title">{l.title}</div>
