@@ -6,6 +6,8 @@ import LoginPage from "../../features/auth/views/LoginPage";
 import RegisterPage from "../../features/auth/views/RegisterPage";
 import SearchPage from "../../features/listings/views/SearchPage";
 import CreatePage from "../../features/listings/views/CreatePage";
+import MyListingsPage from "../../features/listings/views/MyListingsPage";
+import EditListingPage from "../../features/listings/views/EditListingPage";
 
 import { GoogleOAuthProvider } from "@react-oauth/google";
 

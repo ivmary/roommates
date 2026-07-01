@@ -112,7 +112,7 @@ export default function EditListingPage() {
           <p>Update the details of your listing.</p>
         </div>
         <ListingForm
-          initialValues={listing}
+          initialValues={{ ...listing, price: String(listing.price) }}
           onSubmit={handleSubmit}
           onCancel={() => navigate("/my-listings")}
           submitLabel={submitLoading ? "Saving…" : "Save changes"}
