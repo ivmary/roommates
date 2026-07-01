@@ -1,0 +1,87 @@
+.my-listings-inner {
+  max-width: 960px;
+}
+
+.my-listings-empty {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.my-listings-table-wrap {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+
+.my-listings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.my-listings-table th,
+.my-listings-table td {
+  padding: 14px 20px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.my-listings-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.my-listings-table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid var(--border);
+}
+
+.my-listings-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit,
+.btn-delete {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+}
+
+.btn-edit {
+  background: #fff;
+  color: var(--text-h);
+}
+
+.btn-edit:hover {
+  background: var(--bg-soft);
+}
+
+.btn-delete {
+  background: #fff;
+  color: var(--error, #d93025);
+  border-color: var(--error, #d93025);
+}
+
+.btn-delete:hover {
+  background: var(--error, #d93025);
+  color: #fff;
+}
+
+.btn-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
