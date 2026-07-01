@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
-import { useIsraeliCities } from '../../../hooks/useIsraeliCities';
-import type { Listing } from '../types';
-import './styles/SearchPage.css';
+import { useState, useEffect } from "react";
+import { useIsraeliCities } from "../../../hooks/useIsraeliCities";
+import type { Listing } from "../types";
+import "./styles/SearchPage.css";
 
 const ICONS: Record<string, string> = {
-  'Tel Aviv': '🏙️',
-  'Haifa': '⛰️',
-  'Jerusalem': '🕍',
-  "Be'er Sheva": '🌵',
+  "Tel Aviv": "🏙️",
+  Haifa: "⛰️",
+  Jerusalem: "🕍",
+  "Be'er Sheva": "🌵",
 };
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const days = Math.floor(diff / 86_400_000);
-  if (days === 0) return 'Today';
-  if (days === 1) return '1 day ago';
+  if (days === 0) return "Today";
+  if (days === 1) return "1 day ago";
   if (days < 7) return `${days} days ago`;
   const weeks = Math.floor(days / 7);
-  return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+  return weeks === 1 ? "1 week ago" : `${weeks} weeks ago`;
 }
 
 export default function SearchPage() {
@@ -26,19 +26,19 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
 
   const { cities, loading: citiesLoading } = useIsraeliCities();
-  const [query, setQuery] = useState('');
-  const [city, setCity] = useState('');
-  const [cityInput, setCityInput] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [rooms, setRooms] = useState('');
-  const [gender, setGender] = useState('');
-  const [sort, setSort] = useState('newest');
+  const [query, setQuery] = useState("");
+  const [city, setCity] = useState("");
+  const [cityInput, setCityInput] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [rooms, setRooms] = useState("");
+  const [gender, setGender] = useState("");
+  const [sort, setSort] = useState("newest");
 
   useEffect(() => {
     fetch(`/api/apartments`)
       .then((r) => {
-        if (!r.ok) throw new Error('Failed to load listings');
+        if (!r.ok) throw new Error("Failed to load listings");
         return r.json();
       })
       .then(setAllListings)
@@ -49,8 +49,18 @@ export default function SearchPage() {
   const listings = allListings
     .filter((l) => {
       const q = query.toLowerCase();
-      if (q && !l.street?.toLowerCase().includes(q) && !l.title.toLowerCase().includes(q)) return false;
-      if (city && l.city !== city && !l.city.toLowerCase().includes(city.toLowerCase())) return false;
+      if (
+        q &&
+        !l.street?.toLowerCase().includes(q) &&
+        !l.title.toLowerCase().includes(q)
+      )
+        return false;
+      if (
+        city &&
+        l.city !== city &&
+        !l.city.toLowerCase().includes(city.toLowerCase())
+      )
+        return false;
       if (minPrice && l.price < Number(minPrice)) return false;
       if (maxPrice && l.price > Number(maxPrice)) return false;
       if (rooms && l.rooms !== rooms) return false;
@@ -58,8 +68,8 @@ export default function SearchPage() {
       return true;
     })
     .sort((a, b) => {
-      if (sort === 'price-asc') return a.price - b.price;
-      if (sort === 'price-desc') return b.price - a.price;
+      if (sort === "price-asc") return a.price - b.price;
+      if (sort === "price-desc") return b.price - a.price;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
@@ -73,7 +83,7 @@ export default function SearchPage() {
             <input
               type="text"
               list="cities-list"
-              placeholder={citiesLoading ? 'Loading…' : 'Any city'}
+              placeholder={citiesLoading ? "Loading…" : "Any city"}
               disabled={citiesLoading}
               value={cityInput}
               onChange={(e) => {
@@ -82,7 +92,9 @@ export default function SearchPage() {
               }}
             />
             <datalist id="cities-list">
-              {cities.map((c) => <option key={c} value={c} />)}
+              {cities.map((c) => (
+                <option key={c} value={c} />
+              ))}
             </datalist>
           </div>
 
@@ -140,18 +152,28 @@ export default function SearchPage() {
             </select>
           </div>
 
-          <button className="search-btn" onClick={() => {}}>Search</button>
+          <button className="search-btn" onClick={() => {}}>
+            Search
+          </button>
         </div>
       </div>
 
       {/* Results header */}
       <div className="results-header">
         <p className="results-count">
-          {loading
-            ? 'Loading…'
-            : error
-            ? ''
-            : <>Showing <strong>{listings.length} listing{listings.length !== 1 ? 's' : ''}</strong> across Israel</>}
+          {loading ? (
+            "Loading…"
+          ) : error ? (
+            ""
+          ) : (
+            <>
+              Showing{" "}
+              <strong>
+                {listings.length} listing{listings.length !== 1 ? "s" : ""}
+              </strong>{" "}
+              across Israel
+            </>
+          )}
         </p>
         <select
           className="sort-select"
@@ -174,11 +196,12 @@ export default function SearchPage() {
       {/* Cards */}
       <div className="results-grid">
         {listings.map((l) => {
-          const isNew = Date.now() - new Date(l.createdAt).getTime() < 3 * 86_400_000;
+          const isNew =
+            Date.now() - new Date(l.createdAt).getTime() < 3 * 86_400_000;
           return (
             <div className="listing-card" key={l._id}>
               <div className="listing-img">
-                <span>{ICONS[l.city] ?? '🏠'}</span>
+                <span>{ICONS[l.city] ?? "🏠"}</span>
                 {isNew && <span className="listing-badge">New</span>}
               </div>
 
@@ -189,16 +212,21 @@ export default function SearchPage() {
                 </div>
 
                 <div className="listing-location">
-                  📍 {l.street ? `${l.street}, ` : ''}{l.city}
+                  📍 {l.street ? `${l.street}, ` : ""}
+                  {l.city}
                 </div>
 
                 <div className="listing-title">{l.title}</div>
 
-                {l.description && <p className="listing-desc">{l.description}</p>}
+                {l.description && (
+                  <p className="listing-desc">{l.description}</p>
+                )}
 
                 <div className="listing-tags">
                   {l.rooms && <span className="tag">{l.rooms} rooms</span>}
-                  {l.available && <span className="tag">{l.available} available</span>}
+                  {l.available && (
+                    <span className="tag">{l.available} available</span>
+                  )}
                   {l.gender && <span className="tag">{l.gender}</span>}
                   {l.pets && <span className="tag">Pets OK</span>}
                   {l.smoking && <span className="tag">Smoking OK</span>}
