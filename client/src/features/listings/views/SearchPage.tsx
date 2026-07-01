@@ -1,24 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useIsraeliCities } from '../../../hooks/useIsraeliCities';
+import type { Listing } from '../types';
 import './styles/SearchPage.css';
-
-interface Listing {
-  _id: string;
-  title: string;
-  description: string;
-  city: string;
-  neighborhood: string;
-  price: number;
-  rooms: string;
-  available: string;
-  gender: string;
-  pets: boolean;
-  smoking: boolean;
-  students: boolean;
-  furnished: boolean;
-  owner: { name: string; avatar?: string };
-  createdAt: string;
-}
 
 const ICONS: Record<string, string> = {
   'Tel Aviv': '🏙️',
@@ -66,7 +49,7 @@ export default function SearchPage() {
   const listings = allListings
     .filter((l) => {
       const q = query.toLowerCase();
-      if (q && !l.neighborhood?.toLowerCase().includes(q) && !l.title.toLowerCase().includes(q)) return false;
+      if (q && !l.street?.toLowerCase().includes(q) && !l.title.toLowerCase().includes(q)) return false;
       if (city && l.city !== city && !l.city.toLowerCase().includes(city.toLowerCase())) return false;
       if (minPrice && l.price < Number(minPrice)) return false;
       if (maxPrice && l.price > Number(maxPrice)) return false;
@@ -206,7 +189,7 @@ export default function SearchPage() {
                 </div>
 
                 <div className="listing-location">
-                  📍 {l.neighborhood ? `${l.neighborhood}, ` : ''}{l.city}
+                  📍 {l.street ? `${l.street}, ` : ''}{l.city}
                 </div>
 
                 <div className="listing-title">{l.title}</div>
