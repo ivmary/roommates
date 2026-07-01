@@ -9,16 +9,21 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-logo">
-          🏠 RoomMates
+          🏠 RooMates
         </Link>
         <div className="navbar-actions">
           {user ? (
             <>
               <div className="navbar-avatar">
-                {user.avatar
-                  ? <img src={user.avatar} alt={user.name} referrerPolicy="no-referrer" />
-                  : <span>{user.name.charAt(0).toUpperCase()}</span>
-                }
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span>{user.name.charAt(0).toUpperCase()}</span>
+                )}
               </div>
               <span className="navbar-user">{user.name.split(" ")[0]}</span>
               <button className="btn btn-ghost" onClick={logout}>
