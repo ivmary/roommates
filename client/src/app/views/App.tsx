@@ -23,6 +23,8 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/create" element={<CreatePage />} />
+            <Route path="/my-listings" element={<MyListingsPage />} />
+            <Route path="/listings/:id/edit" element={<EditListingPage />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
