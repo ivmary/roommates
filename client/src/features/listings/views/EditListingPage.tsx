@@ -18,8 +18,6 @@ export default function EditListingPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setFetchLoading(true);
-    setNotFound(false);
 
     fetch(`/api/apartments/${id}`)
       .then((res) => {
@@ -33,6 +31,7 @@ export default function EditListingPage() {
           setNotFound(true);
         } else {
           setListing(data);
+          setNotFound(false);
         }
       })
       .catch(() => { if (!cancelled) setNotFound(true); })

@@ -7,17 +7,12 @@ export function useMyListings() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [version, setVersion] = useState(0);
 
-  const fetchListings = useCallback(() => {
-    if (!token) {
-      setListings([]);
-      setLoading(false);
-      return () => {};
-    }
+  useEffect(() => {
+    if (!token) return;
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
     fetch("/api/apartments/me", {
       headers: { Authorization: `Bearer ${token}` },
@@ -26,14 +21,17 @@ export function useMyListings() {
         if (!res.ok) throw new Error("Failed to load your listings");
         return res.json() as Promise<Listing[]>;
       })
-      .then((data) => { if (!cancelled) setListings(data); })
+      .then((data) => { if (!cancelled) { setListings(data); setError(null); } })
       .catch((e) => { if (!cancelled) setError(e.message); })
       .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => { cancelled = true; };
-  }, [token]);
+  }, [token, version]);
 
-  useEffect(() => fetchListings(), [fetchListings]);
+  const refetch = useCallback(() => {
+    setLoading(true);
+    setVersion((v) => v + 1);
+  }, []);
 
-  return { listings, loading, error, refetch: fetchListings };
+  return { listings, loading, error, refetch };
 }
