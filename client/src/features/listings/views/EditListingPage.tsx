@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../shared/store/AuthContext";
 import ListingForm from "../components/ListingForm";
-import type { Listing, ListingFormValues } from "../types";
+import type { Listing, ListingSubmitPayload } from "../types";
 import "./styles/CreatePage.css";
 
 export default function EditListingPage() {
@@ -40,17 +40,32 @@ export default function EditListingPage() {
     return () => { cancelled = true; };
   }, [id, user]);
 
-  const handleSubmit = async (values: ListingFormValues) => {
+  const handleSubmit = async ({ values, newFiles }: ListingSubmitPayload) => {
     setSubmitError(null);
     setSubmitLoading(true);
     try {
+      const fd = new FormData();
+      fd.append("title", values.title);
+      fd.append("description", values.description);
+      fd.append("city", values.city);
+      fd.append("street", values.street);
+      fd.append("price", values.price);
+      fd.append("rooms", values.rooms);
+      fd.append("available", values.available);
+      fd.append("gender", values.gender);
+      fd.append("pets", String(values.pets));
+      fd.append("smoking", String(values.smoking));
+      fd.append("students", String(values.students));
+      fd.append("furnished", String(values.furnished));
+      fd.append("existingImages", JSON.stringify(values.images));
+      newFiles.forEach((file) => fd.append("images", file));
+
       const res = await fetch(`/api/apartments/${id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...values, price: Number(values.price) }),
+        body: fd,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);

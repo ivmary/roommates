@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../shared/store/AuthContext";
 import ListingForm from "../components/ListingForm";
-import type { ListingFormValues } from "../types";
+import type { ListingSubmitPayload } from "../types";
 import "./styles/CreatePage.css";
 
 export default function CreatePage() {
@@ -11,17 +11,31 @@ export default function CreatePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (values: ListingFormValues) => {
+  const handleSubmit = async ({ values, newFiles }: ListingSubmitPayload) => {
     setError(null);
     setLoading(true);
     try {
+      const fd = new FormData();
+      fd.append("title", values.title);
+      fd.append("description", values.description);
+      fd.append("city", values.city);
+      fd.append("street", values.street);
+      fd.append("price", values.price);
+      fd.append("rooms", values.rooms);
+      fd.append("available", values.available);
+      fd.append("gender", values.gender);
+      fd.append("pets", String(values.pets));
+      fd.append("smoking", String(values.smoking));
+      fd.append("students", String(values.students));
+      fd.append("furnished", String(values.furnished));
+      newFiles.forEach((file) => fd.append("images", file));
+
       const res = await fetch(`/api/apartments`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...values, price: Number(values.price) }),
+        body: fd,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
