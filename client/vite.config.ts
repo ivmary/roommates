@@ -8,6 +8,7 @@ export default defineConfig({
     allowedHosts: ["roommates.com"],
     proxy: {
       "/api": "http://localhost:5000",
+      "/uploads": "http://localhost:5000",
     },
     headers: {
       "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
