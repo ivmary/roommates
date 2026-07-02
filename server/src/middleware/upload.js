@@ -19,7 +19,10 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${unique}${path.extname(file.originalname)}`);
+    const name = `${unique}${path.extname(file.originalname)}`;
+    req._uploadedPaths = req._uploadedPaths || [];
+    req._uploadedPaths.push(path.join(uploadsDir, (req.apartmentId || req.params.id).toString(), name));
+    cb(null, name);
   },
 });
 
@@ -40,6 +43,12 @@ const upload = multer({
 
 function handleUploadErrors(err, req, res, next) {
   if (err) {
+    // Multer streams multipart files to disk as it reads them, so a limit/filter
+    // error partway through a batch can leave earlier files already written.
+    (req._uploadedPaths || []).forEach((p) => fs.unlink(p, () => {}));
+    if (req.apartmentId) {
+      fs.rmdir(path.join(uploadsDir, req.apartmentId.toString()), () => {});
+    }
     if (err instanceof multer.MulterError) {
       return res.status(400).json({ message: err.message });
     }
