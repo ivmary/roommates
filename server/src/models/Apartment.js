@@ -14,6 +14,7 @@ const apartmentSchema = new mongoose.Schema(
     smoking: { type: Boolean, default: false },
     students: { type: Boolean, default: false },
     furnished: { type: Boolean, default: false },
+    images: { type: [String], default: [] },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true }
