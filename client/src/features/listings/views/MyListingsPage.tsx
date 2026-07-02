@@ -76,6 +76,7 @@ export default function MyListingsPage() {
             <table className="my-listings-table">
               <thead>
                 <tr>
+                  <th></th>
                   <th>Title</th>
                   <th>Location</th>
                   <th>Price</th>
@@ -87,6 +88,13 @@ export default function MyListingsPage() {
               <tbody>
                 {listings.map((l) => (
                   <tr key={l._id}>
+                    <td className="my-listings-thumb-cell">
+                      <img
+                        src={l.images?.[0] ?? "/no-photo.svg"}
+                        alt={l.title}
+                        className="my-listings-thumb"
+                      />
+                    </td>
                     <td>{l.title}</td>
                     <td>{l.street ? `${l.street}, ` : ""}{l.city}</td>
                     <td>₪{l.price.toLocaleString()}</td>
