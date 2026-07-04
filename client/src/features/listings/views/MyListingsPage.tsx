@@ -100,17 +100,19 @@ export default function MyListingsPage() {
                     <td>₪{l.price.toLocaleString()}</td>
                     <td>{l.rooms || "—"}</td>
                     <td>{new Date(l.createdAt).toLocaleDateString()}</td>
-                    <td className="my-listings-actions">
-                      <Link className="btn-edit" to={`/listings/${l._id}/edit`}>
-                        Edit
-                      </Link>
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(l._id)}
-                        disabled={deletingId === l._id}
-                      >
-                        {deletingId === l._id ? "Deleting…" : "Delete"}
-                      </button>
+                    <td>
+                      <div className="my-listings-actions">
+                        <Link className="btn-edit" to={`/listings/${l._id}/edit`}>
+                          Edit
+                        </Link>
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDelete(l._id)}
+                          disabled={deletingId === l._id}
+                        >
+                          {deletingId === l._id ? "Deleting…" : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
