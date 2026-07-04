@@ -3,13 +3,6 @@ import { useIsraeliCities } from "../../../hooks/useIsraeliCities";
 import type { Listing } from "../types";
 import "./styles/SearchPage.css";
 
-const ICONS: Record<string, string> = {
-  "Tel Aviv": "🏙️",
-  Haifa: "⛰️",
-  Jerusalem: "🕍",
-  "Be'er Sheva": "🌵",
-};
-
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const days = Math.floor(diff / 86_400_000);
@@ -201,7 +194,11 @@ export default function SearchPage() {
           return (
             <div className="listing-card" key={l._id}>
               <div className="listing-img">
-                <span>{ICONS[l.city] ?? "🏠"}</span>
+                <img
+                  src={l.images?.[0] ?? "/no-photo.svg"}
+                  alt={l.title}
+                  className="listing-thumb"
+                />
                 {isNew && <span className="listing-badge">New</span>}
               </div>
 

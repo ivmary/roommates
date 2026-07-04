@@ -18,6 +18,7 @@ export interface Listing {
   smoking: boolean;
   students: boolean;
   furnished: boolean;
+  images: string[];
   owner: ListingOwner;
   createdAt: string;
 }
@@ -35,6 +36,12 @@ export interface ListingFormValues {
   smoking: boolean;
   students: boolean;
   furnished: boolean;
+  images: string[];
+}
+
+export interface ListingSubmitPayload {
+  values: ListingFormValues;
+  newFiles: File[];
 }
 
 export const emptyListingFormValues: ListingFormValues = {
@@ -50,4 +57,5 @@ export const emptyListingFormValues: ListingFormValues = {
   smoking: false,
   students: false,
   furnished: false,
+  images: [],
 };

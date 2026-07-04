@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsraeliCities } from "../../../hooks/useIsraeliCities";
-import type { ListingFormValues } from "../types";
+import type { ListingFormValues, ListingSubmitPayload } from "../types";
 import { emptyListingFormValues } from "../types";
 import "../views/styles/CreatePage.css";
 
+const MAX_PHOTOS = 5;
+
 interface ListingFormProps {
   initialValues?: Partial<ListingFormValues>;
-  onSubmit: (values: ListingFormValues) => Promise<void> | void;
+  onSubmit: (payload: ListingSubmitPayload) => Promise<void> | void;
   onCancel: () => void;
   submitLabel: string;
   loading: boolean;
@@ -28,8 +30,50 @@ export default function ListingForm({
   });
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const [existingImages, setExistingImages] = useState<string[]>(
+    initialValues?.images ?? []
+  );
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const totalPhotoCount = existingImages.length + newFiles.length;
+
+  const newFilePreviews = useMemo(
+    () => newFiles.map((file) => ({ file, url: URL.createObjectURL(file) })),
+    [newFiles]
+  );
+  useEffect(() => {
+    return () => newFilePreviews.forEach((p) => URL.revokeObjectURL(p.url));
+  }, [newFilePreviews]);
+
   const set = (field: keyof ListingFormValues, value: string | boolean) =>
     setForm((f) => ({ ...f, [field]: value }));
+
+  const handleFilesSelected = (fileList: FileList | null) => {
+    if (!fileList) return;
+    const incoming = Array.from(fileList);
+    const room = MAX_PHOTOS - totalPhotoCount;
+    if (room <= 0) {
+      setPhotoError(`You can upload up to ${MAX_PHOTOS} photos per listing.`);
+      return;
+    }
+    const accepted = incoming.slice(0, room);
+    if (incoming.length > room) {
+      setPhotoError(
+        `Only ${room} more photo${room === 1 ? "" : "s"} can be added (max ${MAX_PHOTOS} total).`
+      );
+    } else {
+      setPhotoError(null);
+    }
+    setNewFiles((f) => [...f, ...accepted]);
+  };
+
+  const removeExisting = (url: string) =>
+    setExistingImages((imgs) => imgs.filter((u) => u !== url));
+
+  const removeNewFile = (file: File) =>
+    setNewFiles((files) => files.filter((f) => f !== file));
 
   const handleSubmit = () => {
     if (!form.title || !form.city || !form.price) {
@@ -37,7 +81,7 @@ export default function ListingForm({
       return;
     }
     setValidationError(null);
-    onSubmit(form);
+    onSubmit({ values: { ...form, images: existingImages }, newFiles });
   };
 
   return (
@@ -70,6 +114,57 @@ export default function ListingForm({
             onChange={(e) => set("description", e.target.value)}
           />
         </div>
+      </div>
+
+      {/* Photos */}
+      <div className="create-section">
+        <div className="section-title">Photos</div>
+        <span className="field-hint">
+          Add up to {MAX_PHOTOS} photos ({totalPhotoCount}/{MAX_PHOTOS} used). Optional.
+        </span>
+
+        <div className="photo-grid">
+          {existingImages.map((url) => (
+            <div className="photo-thumb" key={url}>
+              <img src={url} alt="Listing" />
+              <button
+                type="button"
+                className="photo-remove"
+                onClick={() => removeExisting(url)}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          {newFilePreviews.map(({ file, url }) => (
+            <div className="photo-thumb" key={url}>
+              <img src={url} alt="New upload" />
+              <button
+                type="button"
+                className="photo-remove"
+                onClick={() => removeNewFile(file)}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          {totalPhotoCount < MAX_PHOTOS && (
+            <label className="photo-add">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                onChange={(e) => {
+                  handleFilesSelected(e.target.files);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+              />
+              <span>+ Add photo</span>
+            </label>
+          )}
+        </div>
+        {photoError && <p className="create-error">{photoError}</p>}
       </div>
 
       {/* Location */}
