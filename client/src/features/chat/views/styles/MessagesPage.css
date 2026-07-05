@@ -48,12 +48,28 @@
   outline: 1px solid var(--border);
 }
 
+.messages-conversation-thumb-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .messages-conversation-thumb {
   width: 44px;
   height: 44px;
   border-radius: 8px;
   object-fit: cover;
   flex-shrink: 0;
+}
+
+.messages-unread-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #fff;
 }
 
 .messages-conversation-meta {
@@ -63,6 +79,11 @@
 .messages-conversation-name {
   font-weight: 600;
   font-size: 14px;
+}
+
+.messages-conversation-name.unread {
+  color: var(--primary);
+  font-weight: 700;
 }
 
 .messages-conversation-listing {

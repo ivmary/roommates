@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../../shared/store/AuthContext";
+import { useUnreadConversationIds } from "../../../shared/store/SocketContext";
 import { useConversations } from "../../../hooks/useConversations";
 import { useMessages } from "../../../hooks/useMessages";
 import "../../listings/views/styles/CreatePage.css";
@@ -11,6 +12,7 @@ export default function MessagesPage() {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const { conversations, loading: convLoading, error: convError } = useConversations();
+  const unreadConversationIds = useUnreadConversationIds();
   const { messages, loading: msgLoading, error: msgError, sendMessage } =
     useMessages(conversationId ?? null);
   const [draft, setDraft] = useState("");
@@ -56,6 +58,7 @@ export default function MessagesPage() {
         <ul className="messages-conversation-list">
           {conversations.map((c) => {
             const other = c.participants.find((p) => p._id !== user.id);
+            const unread = unreadConversationIds.has(c._id);
             return (
               <li key={c._id}>
                 <button
@@ -65,13 +68,18 @@ export default function MessagesPage() {
                   }`}
                   onClick={() => navigate(`/messages/${c._id}`)}
                 >
-                  <img
-                    src={c.apartment.images?.[0] ?? "/no-photo.svg"}
-                    alt=""
-                    className="messages-conversation-thumb"
-                  />
+                  <div className="messages-conversation-thumb-wrap">
+                    <img
+                      src={c.apartment.images?.[0] ?? "/no-photo.svg"}
+                      alt=""
+                      className="messages-conversation-thumb"
+                    />
+                    {unread && <span className="messages-unread-dot" />}
+                  </div>
                   <div className="messages-conversation-meta">
-                    <div className="messages-conversation-name">
+                    <div
+                      className={`messages-conversation-name${unread ? " unread" : ""}`}
+                    >
                       {other?.name ?? "Unknown"}
                     </div>
                     <div className="messages-conversation-listing">

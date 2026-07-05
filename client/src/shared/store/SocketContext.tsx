@@ -97,6 +97,10 @@ export function useUnreadMessageCount() {
   return useContext(SocketContext).unreadConversationIds.size;
 }
 
+export function useUnreadConversationIds() {
+  return useContext(SocketContext).unreadConversationIds;
+}
+
 export function useChatPresence() {
   const { setActiveConversationId, markConversationRead } = useContext(SocketContext);
   return { setActiveConversationId, markConversationRead };
