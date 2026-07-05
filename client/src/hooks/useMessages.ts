@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../shared/store/AuthContext";
-import { useSocket } from "../shared/store/SocketContext";
+import { useSocket, useChatPresence } from "../shared/store/SocketContext";
 import type { ChatMessage } from "../features/chat/types";
 
 export function useMessages(conversationId: string | null) {
   const { token } = useAuth();
   const socket = useSocket();
+  const { setActiveConversationId, markConversationRead } = useChatPresence();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +35,8 @@ export function useMessages(conversationId: string | null) {
     if (!socket || !conversationId) return;
 
     socket.emit("join:conversation", conversationId);
+    setActiveConversationId(conversationId);
+    markConversationRead(conversationId);
 
     const handleNew = (message: ChatMessage) => {
       if (message.conversation === conversationId) {
@@ -44,8 +47,9 @@ export function useMessages(conversationId: string | null) {
 
     return () => {
       socket.off("message:new", handleNew);
+      setActiveConversationId(null);
     };
-  }, [socket, conversationId]);
+  }, [socket, conversationId, setActiveConversationId, markConversationRead]);
 
   const sendMessage = useCallback(
     (text: string) => {

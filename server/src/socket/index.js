@@ -21,7 +21,12 @@ const authenticateSocket = async (socket, next) => {
 function initSocket(io) {
   io.use(authenticateSocket);
 
-  io.on('connection', (socket) => {
+  io.on('connection', async (socket) => {
+    const myConversations = await Conversation.find({
+      participants: socket.user._id,
+    }).select('_id');
+    myConversations.forEach((c) => socket.join(c._id.toString()));
+
     socket.on('join:conversation', async (conversationId) => {
       const conversation = await Conversation.findOne({
         _id: conversationId,

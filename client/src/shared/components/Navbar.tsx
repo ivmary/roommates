@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../store/AuthContext";
+import { useUnreadMessageCount } from "../store/SocketContext";
 import "./Navbar.css";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const unreadCount = useUnreadMessageCount();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -51,6 +53,7 @@ export default function Navbar() {
                   ) : (
                     <span>{user.name.charAt(0).toUpperCase()}</span>
                   )}
+                  {unreadCount > 0 && <span className="navbar-unread-dot" />}
                 </div>
                 <span className="navbar-user">{user.name.split(" ")[0]}</span>
               </button>
@@ -64,6 +67,9 @@ export default function Navbar() {
                   </Link>
                   <Link className="navbar-dropdown-item" to="/messages" onClick={() => setOpen(false)}>
                     Messages
+                    {unreadCount > 0 && (
+                      <span className="navbar-unread-badge">{unreadCount}</span>
+                    )}
                   </Link>
                   <button className="navbar-dropdown-item" onClick={() => { setOpen(false); logout(); }}>
                     Log out
