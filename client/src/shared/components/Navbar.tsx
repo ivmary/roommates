@@ -62,6 +62,9 @@ export default function Navbar() {
                   <Link className="navbar-dropdown-item" to="/my-listings" onClick={() => setOpen(false)}>
                     My Listings
                   </Link>
+                  <Link className="navbar-dropdown-item" to="/messages" onClick={() => setOpen(false)}>
+                    Messages
+                  </Link>
                   <button className="navbar-dropdown-item" onClick={() => { setOpen(false); logout(); }}>
                     Log out
                   </button>
