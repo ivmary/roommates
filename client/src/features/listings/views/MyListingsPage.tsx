@@ -24,7 +24,9 @@ export default function MyListingsPage() {
       if (!res.ok) throw new Error(data.message);
       refetch();
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : "Something went wrong.");
+      setDeleteError(
+        err instanceof Error ? err.message : "Something went wrong.",
+      );
     } finally {
       setDeletingId(null);
     }
@@ -96,13 +98,19 @@ export default function MyListingsPage() {
                       />
                     </td>
                     <td>{l.title}</td>
-                    <td>{l.street ? `${l.street}, ` : ""}{l.city}</td>
+                    <td>
+                      {l.street ? `${l.street}, ` : ""}
+                      {l.city}
+                    </td>
                     <td>₪{l.price.toLocaleString()}</td>
                     <td>{l.rooms || "—"}</td>
                     <td>{new Date(l.createdAt).toLocaleDateString()}</td>
                     <td>
                       <div className="my-listings-actions">
-                        <Link className="btn-edit" to={`/listings/${l._id}/edit`}>
+                        <Link
+                          className="btn-edit"
+                          to={`/listings/${l._id}/edit`}
+                        >
                           Edit
                         </Link>
                         <button

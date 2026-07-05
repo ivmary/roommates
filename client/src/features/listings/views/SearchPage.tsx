@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useIsraeliCities } from "../../../hooks/useIsraeliCities";
+import { useAuth } from "../../../shared/store/AuthContext";
 import type { Listing } from "../types";
 import "./styles/SearchPage.css";
 
@@ -17,6 +19,11 @@ export default function SearchPage() {
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { user, token } = useAuth();
+  const navigate = useNavigate();
+  const [messagingId, setMessagingId] = useState<string | null>(null);
+  const [messageError, setMessageError] = useState<string | null>(null);
 
   const { cities, loading: citiesLoading } = useIsraeliCities();
   const [query, setQuery] = useState("");
@@ -65,6 +72,35 @@ export default function SearchPage() {
       if (sort === "price-desc") return b.price - a.price;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
+
+  const handleMessage = async (apartmentId: string) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    setMessageError(null);
+    setMessagingId(apartmentId);
+    try {
+      const res = await fetch("/api/conversations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ apartmentId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      navigate(`/messages/${data._id}`);
+    } catch (err) {
+      setMessageError(
+        err instanceof Error ? err.message : "Something went wrong.",
+      );
+    } finally {
+      setMessagingId(null);
+    }
+  };
 
   return (
     <div className="search-page">
@@ -181,6 +217,7 @@ export default function SearchPage() {
 
       {/* States */}
       {error && <p className="search-error">{error}</p>}
+      {messageError && <p className="search-error">{messageError}</p>}
 
       {!loading && !error && listings.length === 0 && (
         <p className="search-empty">No listings match your search.</p>
@@ -234,7 +271,18 @@ export default function SearchPage() {
 
               <div className="listing-footer">
                 <span className="listing-posted">{timeAgo(l.createdAt)}</span>
-                <button className="btn-view">View listing</button>
+                <div className="listing-footer-actions">
+                  {l.owner._id !== user?.id && (
+                    <button
+                      className="btn-message"
+                      onClick={() => handleMessage(l._id)}
+                      disabled={messagingId === l._id}
+                    >
+                      {messagingId === l._id ? "…" : "Message"}
+                    </button>
+                  )}
+                  <button className="btn-view">View listing</button>
+                </div>
               </div>
             </div>
           );
