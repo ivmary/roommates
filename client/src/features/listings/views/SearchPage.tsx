@@ -22,8 +22,7 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
 
   const { user } = useAuth();
-  const { startConversation, error: messageError } = useStartConversation();
-  const [messagingId, setMessagingId] = useState<string | null>(null);
+  const { startConversation } = useStartConversation();
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
 
   const { cities, loading: citiesLoading } = useIsraeliCities();
@@ -73,12 +72,6 @@ export default function SearchPage() {
       if (sort === "price-desc") return b.price - a.price;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-
-  const handleMessage = async (apartmentId: string) => {
-    setMessagingId(apartmentId);
-    await startConversation(apartmentId);
-    setMessagingId(null);
-  };
 
   return (
     <div className="search-page">
@@ -195,7 +188,6 @@ export default function SearchPage() {
 
       {/* States */}
       {error && <p className="search-error">{error}</p>}
-      {messageError && <p className="search-error">{messageError}</p>}
 
       {!loading && !error && listings.length === 0 && (
         <p className="search-empty">No listings match your search.</p>
@@ -259,11 +251,10 @@ export default function SearchPage() {
                       className="btn-message"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleMessage(l._id);
+                        startConversation(l._id);
                       }}
-                      disabled={messagingId === l._id}
                     >
-                      {messagingId === l._id ? "…" : "Message"}
+                      Message
                     </button>
                   )}
                   <button

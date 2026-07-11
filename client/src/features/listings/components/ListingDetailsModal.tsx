@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Modal from "../../../shared/components/Modal";
 import ImageCarousel from "./ImageCarousel";
 import { useAuth } from "../../../shared/store/AuthContext";
@@ -16,16 +15,9 @@ export default function ListingDetailsModal({
   onClose,
 }: ListingDetailsModalProps) {
   const { user } = useAuth();
-  const { startConversation, error } = useStartConversation();
-  const [opening, setOpening] = useState(false);
+  const { startConversation } = useStartConversation();
 
   const isOwner = user?.id === listing.owner._id;
-
-  const handleOpenChat = async () => {
-    setOpening(true);
-    await startConversation(listing._id);
-    setOpening(false);
-  };
 
   return (
     <Modal onClose={onClose}>
@@ -77,15 +69,12 @@ export default function ListingDetailsModal({
             <span>{listing.owner.name}</span>
           </div>
 
-          {error && <p className="listing-details-error">{error}</p>}
-
           {!isOwner && (
             <button
               className="btn-open-chat"
-              onClick={handleOpenChat}
-              disabled={opening}
+              onClick={() => startConversation(listing._id)}
             >
-              {opening ? "Opening chat…" : "Open chat"}
+              Open chat
             </button>
           )}
         </div>

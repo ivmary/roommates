@@ -1,35 +1,20 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../shared/store/AuthContext";
 
+// Doesn't create anything — just routes to the conversation for this
+// apartment if one exists, or a draft thread if it doesn't yet.
+// MessagesPage resolves which one it is once it loads.
 export function useStartConversation() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
 
-  const startConversation = async (apartmentId: string) => {
+  const startConversation = (apartmentId: string) => {
     if (!user) {
       navigate("/login");
       return;
     }
-
-    setError(null);
-    try {
-      const res = await fetch("/api/conversations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ apartmentId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      navigate(`/messages/${data._id}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    }
+    navigate(`/messages/apartment/${apartmentId}`);
   };
 
-  return { startConversation, error };
+  return { startConversation };
 }
