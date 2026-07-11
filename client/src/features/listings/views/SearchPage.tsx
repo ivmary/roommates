@@ -34,6 +34,10 @@ export default function SearchPage() {
   const [rooms, setRooms] = useState("");
   const [gender, setGender] = useState("");
   const [sort, setSort] = useState("newest");
+  const [petsOnly, setPetsOnly] = useState(false);
+  const [smokingOnly, setSmokingOnly] = useState(false);
+  const [studentsOnly, setStudentsOnly] = useState(false);
+  const [furnishedOnly, setFurnishedOnly] = useState(false);
 
   useEffect(() => {
     fetch(`/api/apartments`)
@@ -65,6 +69,10 @@ export default function SearchPage() {
       if (maxPrice && l.price > Number(maxPrice)) return false;
       if (rooms && l.rooms !== rooms) return false;
       if (gender && l.gender !== gender) return false;
+      if (petsOnly && !l.pets) return false;
+      if (smokingOnly && !l.smoking) return false;
+      if (studentsOnly && !l.students) return false;
+      if (furnishedOnly && !l.furnished) return false;
       return true;
     })
     .sort((a, b) => {
@@ -155,6 +163,44 @@ export default function SearchPage() {
           <button className="search-btn" onClick={() => {}}>
             Search
           </button>
+        </div>
+
+        <div className="search-bar-inner search-prefs">
+          <label className="pref-option pref-option--compact">
+            <input
+              type="checkbox"
+              checked={petsOnly}
+              onChange={(e) => setPetsOnly(e.target.checked)}
+            />
+            <span>🐾 Pets allowed</span>
+          </label>
+
+          <label className="pref-option pref-option--compact">
+            <input
+              type="checkbox"
+              checked={smokingOnly}
+              onChange={(e) => setSmokingOnly(e.target.checked)}
+            />
+            <span>🚬 Smoking OK</span>
+          </label>
+
+          <label className="pref-option pref-option--compact">
+            <input
+              type="checkbox"
+              checked={studentsOnly}
+              onChange={(e) => setStudentsOnly(e.target.checked)}
+            />
+            <span>🎓 Students welcome</span>
+          </label>
+
+          <label className="pref-option pref-option--compact">
+            <input
+              type="checkbox"
+              checked={furnishedOnly}
+              onChange={(e) => setFurnishedOnly(e.target.checked)}
+            />
+            <span>🛋️ Furnished</span>
+          </label>
         </div>
       </div>
 
