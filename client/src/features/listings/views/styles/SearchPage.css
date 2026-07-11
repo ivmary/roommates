@@ -75,6 +75,44 @@
   transform: translateY(-1px);
 }
 
+/* ── Preference filters ── */
+.search-prefs {
+  margin-top: 12px;
+  align-items: center;
+}
+
+.pref-option--compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+  flex: none;
+}
+
+.pref-option--compact:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.pref-option--compact input {
+  accent-color: var(--primary);
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.pref-option--compact span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-h);
+  white-space: nowrap;
+}
+
 /* ── Results header ── */
 .results-header {
   max-width: 1100px;
