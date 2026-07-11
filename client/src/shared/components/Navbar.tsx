@@ -35,6 +35,12 @@ export default function Navbar() {
           🏠 RooMates
         </Link>
         <div className="navbar-actions">
+          <Link to="/search" className="navbar-link">
+            Search
+          </Link>
+          <Link to="/create" className="navbar-link">
+            Create Listing
+          </Link>
           {user ? (
             <div className="navbar-menu" ref={menuRef}>
               <button
@@ -59,9 +65,9 @@ export default function Navbar() {
               </button>
               {open && (
                 <div className="navbar-dropdown" role="menu">
-                  <span className="navbar-dropdown-item navbar-dropdown-item--disabled" aria-disabled="true">
+                  <Link className="navbar-dropdown-item" to="/profile" onClick={() => setOpen(false)}>
                     Profile
-                  </span>
+                  </Link>
                   <Link className="navbar-dropdown-item" to="/my-listings" onClick={() => setOpen(false)}>
                     My Listings
                   </Link>
