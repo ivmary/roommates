@@ -1,6 +1,11 @@
 .messages-page {
   display: flex;
+  /* dvh tracks the actual visible viewport on mobile, where vh doesn't
+     account for the browser chrome (address bar) shrinking/growing —
+     without it, the page is taller than the screen and the whole thing
+     scrolls as a unit, dragging the "sticky" header/input along with it. */
   height: calc(100vh - 65px); /* viewport minus the sticky navbar's height */
+  height: calc(100dvh - 65px);
   overflow: hidden;
   background: var(--bg-soft);
 }
@@ -107,14 +112,28 @@
 }
 
 .messages-thread-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
   font-weight: 600;
   background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.messages-thread-back {
+  display: none;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-muted);
 }
 
 .messages-thread-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 24px;
   display: flex;
@@ -143,6 +162,9 @@
 }
 
 .messages-input-row {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
   display: flex;
   gap: 10px;
   padding: 16px 24px;
@@ -156,4 +178,33 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .messages-sidebar {
+    width: 100%;
+  }
+
+  .messages-page.has-thread .messages-sidebar {
+    display: none;
+  }
+
+  .messages-page:not(.has-thread) .messages-thread {
+    display: none;
+  }
+
+  .messages-thread-back {
+    display: inline-block;
+  }
+
+  .messages-thread-header,
+  .messages-thread-body,
+  .messages-input-row {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .messages-bubble {
+    max-width: 80%;
+  }
 }

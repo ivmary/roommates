@@ -1,33 +1,5 @@
-const Apartment = require('../models/Apartment');
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
-
-const createConversation = async (req, res) => {
-  const { apartmentId } = req.body;
-  const apartment = await Apartment.findById(apartmentId);
-  if (!apartment) {
-    return res.status(404).json({ message: 'Listing not found' });
-  }
-  if (apartment.owner.toString() === req.user._id.toString()) {
-    return res
-      .status(400)
-      .json({ message: 'Cannot start a conversation with yourself' });
-  }
-
-  let conversation = await Conversation.findOne({
-    apartment: apartmentId,
-    participants: { $all: [apartment.owner, req.user._id] },
-  });
-
-  if (!conversation) {
-    conversation = await Conversation.create({
-      apartment: apartmentId,
-      participants: [apartment.owner, req.user._id],
-    });
-  }
-
-  res.status(201).json(conversation);
-};
 
 const getConversations = async (req, res) => {
   const conversations = await Conversation.find({
@@ -56,4 +28,4 @@ const getMessages = async (req, res) => {
   res.json(messages);
 };
 
-module.exports = { createConversation, getConversations, getMessages };
+module.exports = { getConversations, getMessages };

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useIsraeliCities } from "../../../hooks/useIsraeliCities";
 import { useAuth } from "../../../shared/store/AuthContext";
+import { useStartConversation } from "../../../hooks/useStartConversation";
+import ListingDetailsModal from "../components/ListingDetailsModal";
 import type { Listing } from "../types";
 import "./styles/SearchPage.css";
 
@@ -20,10 +21,9 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { user, token } = useAuth();
-  const navigate = useNavigate();
-  const [messagingId, setMessagingId] = useState<string | null>(null);
-  const [messageError, setMessageError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { startConversation } = useStartConversation();
+  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
 
   const { cities, loading: citiesLoading } = useIsraeliCities();
   const [query, setQuery] = useState("");
@@ -72,35 +72,6 @@ export default function SearchPage() {
       if (sort === "price-desc") return b.price - a.price;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-
-  const handleMessage = async (apartmentId: string) => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-
-    setMessageError(null);
-    setMessagingId(apartmentId);
-    try {
-      const res = await fetch("/api/conversations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ apartmentId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      navigate(`/messages/${data._id}`);
-    } catch (err) {
-      setMessageError(
-        err instanceof Error ? err.message : "Something went wrong.",
-      );
-    } finally {
-      setMessagingId(null);
-    }
-  };
 
   return (
     <div className="search-page">
@@ -217,7 +188,6 @@ export default function SearchPage() {
 
       {/* States */}
       {error && <p className="search-error">{error}</p>}
-      {messageError && <p className="search-error">{messageError}</p>}
 
       {!loading && !error && listings.length === 0 && (
         <p className="search-empty">No listings match your search.</p>
@@ -229,7 +199,11 @@ export default function SearchPage() {
           const isNew =
             Date.now() - new Date(l.createdAt).getTime() < 3 * 86_400_000;
           return (
-            <div className="listing-card" key={l._id}>
+            <div
+              className="listing-card"
+              key={l._id}
+              onClick={() => setSelectedListing(l)}
+            >
               <div className="listing-img">
                 <img
                   src={l.images?.[0] ?? "/no-photo.svg"}
@@ -275,19 +249,36 @@ export default function SearchPage() {
                   {l.owner._id !== user?.id && (
                     <button
                       className="btn-message"
-                      onClick={() => handleMessage(l._id)}
-                      disabled={messagingId === l._id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startConversation(l._id);
+                      }}
                     >
-                      {messagingId === l._id ? "…" : "Message"}
+                      Message
                     </button>
                   )}
-                  <button className="btn-view">View listing</button>
+                  <button
+                    className="btn-view"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedListing(l);
+                    }}
+                  >
+                    View listing
+                  </button>
                 </div>
               </div>
             </div>
           );
         })}
       </div>
+
+      {selectedListing && (
+        <ListingDetailsModal
+          listing={selectedListing}
+          onClose={() => setSelectedListing(null)}
+        />
+      )}
     </div>
   );
 }

@@ -19,7 +19,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  googleLogin: (credential: string) => Promise<void>; // add this
+  googleLogin: (credential: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -55,14 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const res = await fetch(
-      `/api/auth/register`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      },
-    );
+    const res = await fetch(`/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
     persist(data.user, data.token);

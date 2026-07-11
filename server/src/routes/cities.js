@@ -68,7 +68,6 @@ async function fetchAllCities() {
   return all.sort((a, b) => a.localeCompare(b));
 }
 
-// Pre-warm cache on server start
 fetchAllCities()
   .then((cities) => {
     cache = cities;

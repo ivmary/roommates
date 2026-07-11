@@ -11,9 +11,9 @@ import { io, type Socket } from "socket.io-client";
 import { useAuth } from "./AuthContext";
 import type { ChatMessage } from "../../features/chat/types";
 
-// In dev, connect same-origin through the Vite proxy (see vite.config.ts) so
-// this doesn't depend on VITE_API_URL being set correctly, same as /api calls.
-const SOCKET_URL = import.meta.env.DEV ? undefined : import.meta.env.VITE_API_URL;
+const SOCKET_URL = import.meta.env.DEV
+  ? undefined
+  : import.meta.env.VITE_API_URL;
 
 interface SocketContextValue {
   socket: Socket | null;
@@ -32,9 +32,9 @@ const SocketContext = createContext<SocketContextValue>({
 export function SocketProvider({ children }: { children: ReactNode }) {
   const { user, token } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [unreadConversationIds, setUnreadConversationIds] = useState<Set<string>>(
-    new Set(),
-  );
+  const [unreadConversationIds, setUnreadConversationIds] = useState<
+    Set<string>
+  >(new Set());
   const activeConversationIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -58,7 +58,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     const handleNew = (message: ChatMessage) => {
       if (message.sender._id === user.id) return;
       if (message.conversation === activeConversationIdRef.current) return;
-      setUnreadConversationIds((prev) => new Set(prev).add(message.conversation));
+      setUnreadConversationIds((prev) =>
+        new Set(prev).add(message.conversation),
+      );
     };
 
     socket.on("message:new", handleNew);
@@ -82,7 +84,12 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
   return (
     <SocketContext.Provider
-      value={{ socket, unreadConversationIds, setActiveConversationId, markConversationRead }}
+      value={{
+        socket,
+        unreadConversationIds,
+        setActiveConversationId,
+        markConversationRead,
+      }}
     >
       {children}
     </SocketContext.Provider>
@@ -102,6 +109,7 @@ export function useUnreadConversationIds() {
 }
 
 export function useChatPresence() {
-  const { setActiveConversationId, markConversationRead } = useContext(SocketContext);
+  const { setActiveConversationId, markConversationRead } =
+    useContext(SocketContext);
   return { setActiveConversationId, markConversationRead };
 }

@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../shared/store/AuthContext";
+import { useSocket } from "../shared/store/SocketContext";
 import type { Conversation } from "../features/chat/types";
 
 export function useConversations() {
   const { token } = useAuth();
+  const socket = useSocket();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,17 @@ export function useConversations() {
     setLoading(true);
     setVersion((v) => v + 1);
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("conversation:new", refetch);
+    socket.on("message:new", refetch);
+    return () => {
+      socket.off("conversation:new", refetch);
+      socket.off("message:new", refetch);
+    };
+  }, [socket, refetch]);
 
   return { conversations, loading, error, refetch };
 }
