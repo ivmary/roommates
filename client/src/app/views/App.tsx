@@ -5,6 +5,7 @@ import Navbar from "../../shared/components/Navbar";
 import HomePage from "../../features/home/views/HomePage";
 import LoginPage from "../../features/auth/views/LoginPage";
 import RegisterPage from "../../features/auth/views/RegisterPage";
+import ProfilePage from "../../features/auth/views/ProfilePage";
 import SearchPage from "../../features/listings/views/SearchPage";
 import CreatePage from "../../features/listings/views/CreatePage";
 import MyListingsPage from "../../features/listings/views/MyListingsPage";
@@ -24,6 +25,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/create" element={<CreatePage />} />
               <Route path="/my-listings" element={<MyListingsPage />} />
