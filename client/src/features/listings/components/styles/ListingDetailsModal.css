@@ -86,11 +86,6 @@
   justify-content: center;
 }
 
-.listing-details-error {
-  color: var(--error, #d93025);
-  font-size: 14px;
-}
-
 .btn-open-chat {
   background: var(--primary);
   color: #fff;
@@ -103,9 +98,4 @@
 
 .btn-open-chat:hover {
   background: var(--primary-dark);
-}
-
-.btn-open-chat:disabled {
-  opacity: 0.6;
-  cursor: default;
 }

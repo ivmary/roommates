@@ -278,11 +278,6 @@
   background: var(--primary-light);
 }
 
-.btn-message:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
 .search-error,
 .search-empty {
   text-align: center;
