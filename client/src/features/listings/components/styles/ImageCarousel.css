@@ -1,0 +1,70 @@
+.carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.carousel-viewport {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background: var(--primary-light);
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+}
+
+.carousel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.carousel-nav:hover {
+  background: var(--primary-light);
+}
+
+.carousel-nav--prev {
+  left: 12px;
+}
+
+.carousel-nav--next {
+  right: 12px;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding-bottom: 4px;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+  padding: 0;
+  transition: background 0.15s;
+}
+
+.carousel-dot--active {
+  background: var(--primary);
+}
