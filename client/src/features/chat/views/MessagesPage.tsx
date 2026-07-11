@@ -1,21 +1,67 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../../shared/store/AuthContext";
-import { useUnreadConversationIds } from "../../../shared/store/SocketContext";
+import {
+  useSocket,
+  useUnreadConversationIds,
+} from "../../../shared/store/SocketContext";
 import { useConversations } from "../../../hooks/useConversations";
 import { useMessages } from "../../../hooks/useMessages";
+import type { Listing } from "../../listings/types";
 import "../../listings/views/styles/CreatePage.css";
 import "./styles/MessagesPage.css";
 
 export default function MessagesPage() {
   const { user } = useAuth();
-  const { conversationId } = useParams();
+  const { conversationId, apartmentId } = useParams();
   const navigate = useNavigate();
-  const { conversations, loading: convLoading, error: convError } = useConversations();
+  const socket = useSocket();
+  const {
+    conversations,
+    loading: convLoading,
+    error: convError,
+  } = useConversations();
   const unreadConversationIds = useUnreadConversationIds();
-  const { messages, loading: msgLoading, error: msgError, sendMessage } =
-    useMessages(conversationId ?? null);
+  const {
+    messages,
+    loading: msgLoading,
+    error: msgError,
+    sendMessage,
+  } = useMessages(conversationId ?? null);
   const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const matchedConversation = apartmentId
+    ? conversations.find((c) => c.apartment._id === apartmentId)
+    : undefined;
+
+  useEffect(() => {
+    if (matchedConversation) {
+      navigate(`/messages/${matchedConversation._id}`, { replace: true });
+    }
+  }, [matchedConversation, navigate]);
+
+  const isDraft = Boolean(apartmentId) && !matchedConversation;
+
+  const [draftApartment, setDraftApartment] = useState<Listing | null>(null);
+  const [draftError, setDraftError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isDraft || convLoading) return;
+
+    fetch(`/api/apartments/${apartmentId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Listing not found");
+        return res.json();
+      })
+      .then((apartment: Listing) => {
+        if (apartment.owner._id === user?.id) {
+          throw new Error("You can't message yourself about your own listing.");
+        }
+        setDraftApartment(apartment);
+      })
+      .catch((e) => setDraftError(e.message));
+  }, [isDraft, convLoading, apartmentId, user?.id]);
 
   if (!user) {
     return (
@@ -37,17 +83,39 @@ export default function MessagesPage() {
     );
   }
 
-  const activeConversation = conversations.find((c) => c._id === conversationId);
+  const activeConversation = conversations.find(
+    (c) => c._id === conversationId,
+  );
+  const hasThread = Boolean(conversationId) || isDraft;
 
   const handleSend = (e: FormEvent) => {
     e.preventDefault();
-    if (!draft.trim()) return;
-    sendMessage(draft);
+    const text = draft.trim();
+    if (!text) return;
+
+    if (isDraft) {
+      if (!socket || !apartmentId) return;
+      setSending(true);
+      socket.emit(
+        "message:send",
+        { apartmentId, text },
+        (res: { conversationId?: string; error?: string }) => {
+          setSending(false);
+          if (res?.conversationId) {
+            navigate(`/messages/${res.conversationId}`, { replace: true });
+          } else if (res?.error) {
+            setDraftError(res.error);
+          }
+        },
+      );
+    } else {
+      sendMessage(text);
+    }
     setDraft("");
   };
 
   return (
-    <div className="messages-page">
+    <div className={`messages-page${hasThread ? " has-thread" : ""}`}>
       <aside className="messages-sidebar">
         <h2>Messages</h2>
         {convLoading && <p>Loading…</p>}
@@ -94,31 +162,66 @@ export default function MessagesPage() {
       </aside>
 
       <section className="messages-thread">
-        {!conversationId && (
-          <p className="messages-empty-state">Select a conversation to start chatting.</p>
+        {!conversationId && !isDraft && (
+          <p className="messages-empty-state">
+            Select a conversation to start chatting.
+          </p>
         )}
 
-        {conversationId && (
+        {isDraft && convLoading && <p>Loading…</p>}
+        {isDraft && !convLoading && draftError && (
+          <p className="create-error">{draftError}</p>
+        )}
+
+        {(conversationId ||
+          (isDraft && !convLoading && !draftError && draftApartment)) && (
           <>
-            {activeConversation && (
+            {conversationId && activeConversation && (
               <div className="messages-thread-header">
+                <Link
+                  to="/messages"
+                  className="messages-thread-back"
+                  aria-label="Back to conversations"
+                >
+                  ‹
+                </Link>
                 {activeConversation.apartment.title}
+              </div>
+            )}
+            {isDraft && draftApartment && (
+              <div className="messages-thread-header">
+                <Link
+                  to="/messages"
+                  className="messages-thread-back"
+                  aria-label="Back to conversations"
+                >
+                  ‹
+                </Link>
+                {draftApartment.title}
               </div>
             )}
 
             <div className="messages-thread-body">
-              {msgLoading && <p>Loading…</p>}
-              {msgError && <p className="create-error">{msgError}</p>}
-              {messages.map((m) => (
-                <div
-                  key={m._id}
-                  className={`messages-bubble${
-                    m.sender._id === user.id ? " mine" : " theirs"
-                  }`}
-                >
-                  {m.text}
-                </div>
-              ))}
+              {isDraft ? (
+                <p className="messages-empty-state">
+                  Say hello to start the conversation about this listing.
+                </p>
+              ) : (
+                <>
+                  {msgLoading && <p>Loading…</p>}
+                  {msgError && <p className="create-error">{msgError}</p>}
+                  {messages.map((m) => (
+                    <div
+                      key={m._id}
+                      className={`messages-bubble${
+                        m.sender._id === user.id ? " mine" : " theirs"
+                      }`}
+                    >
+                      {m.text}
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
 
             <form className="messages-input-row" onSubmit={handleSend}>
@@ -126,9 +229,10 @@ export default function MessagesPage() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Type a message…"
+                disabled={sending}
               />
-              <button className="btn-submit" type="submit">
-                Send
+              <button className="btn-submit" type="submit" disabled={sending}>
+                {sending ? "Sending…" : "Send"}
               </button>
             </form>
           </>
