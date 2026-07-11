@@ -29,6 +29,7 @@ function App() {
               <Route path="/my-listings" element={<MyListingsPage />} />
               <Route path="/listings/:id/edit" element={<EditListingPage />} />
               <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/messages/apartment/:apartmentId" element={<MessagesPage />} />
               <Route path="/messages/:conversationId" element={<MessagesPage />} />
             </Routes>
           </SocketProvider>
