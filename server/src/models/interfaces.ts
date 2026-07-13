@@ -1,4 +1,5 @@
 import { HydratedDocument, Types } from 'mongoose';
+import { GenderPreference } from './enums';
 
 export interface IUser {
   name: string;
@@ -18,7 +19,7 @@ export interface IApartment {
   price: number;
   rooms?: string;
   available?: string;
-  gender?: string;
+  gender?: GenderPreference;
   pets: boolean;
   smoking: boolean;
   students: boolean;
