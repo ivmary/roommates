@@ -39,7 +39,7 @@ export class ChatGateway {
   private async onConnection(io: Server, socket: Socket): Promise<void> {
     const user = socket.data.user as UserDocument;
 
-    // Personal room (conversation:new lands here) + rooms of existing conversations.
+    // Personal room
     socket.join(user._id.toString());
     try {
       const myConversations = await this.chatService.getConversationIds(user._id);

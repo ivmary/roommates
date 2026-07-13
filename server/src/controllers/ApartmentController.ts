@@ -1,3 +1,4 @@
+/// <reference path="../types/express.d.ts" />
 import { Request } from 'express';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { ApartmentService } from '../services/ApartmentService';
